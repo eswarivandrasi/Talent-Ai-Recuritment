@@ -13,6 +13,9 @@ def create_app(config_name=None):
     # Initialize extensions
     db.init_app(app)
 
+    with app.app_context():
+        db.create_all()
+
     # Ensure upload directory exists
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(os.path.join(app.root_path, '..', 'database'), exist_ok=True)
