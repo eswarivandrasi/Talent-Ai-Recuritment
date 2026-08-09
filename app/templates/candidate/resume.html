@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Resume - AI Recruitment System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- PDF Upload Form -->
+        <div class="col-lg-5">
+            <div class="card-custom p-4">
+                <h4 class="fw-bold mb-2"><i class="bi bi-cloud-upload text-primary me-2"></i>Upload Resume PDF</h4>
+                <p class="text-muted small mb-4">Upload your PDF resume. Our AI parser will extract your skills, education, and experience details automatically.</p>
+
+                <form action="{{ url_for('candidate.resume') }}" method="POST" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <div class="p-4 border-2 border-dashed border-primary rounded-4 text-center bg-light">
+                            <i class="bi bi-file-earmark-pdf fs-1 text-primary mb-2"></i>
+                            <div class="fw-semibold">Select PDF Document</div>
+                            <div class="small text-muted mb-3">Maximum file size: 16 MB</div>
+                            <input type="file" class="form-control d-none" id="resume_pdf" name="resume_pdf" accept=".pdf" required>
+                            <label for="resume_pdf" class="btn btn-outline-primary btn-sm rounded-pill px-4">Browse File</label>
+                            <div id="file_name_display" class="small text-success fw-bold mt-2 d-none"></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2.5 fw-bold shadow-sm">
+                        Upload & Parse Resume <i class="bi bi-stars ms-1"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Parsed Resume Overview -->
+        <div class="col-lg-7">
+            <div class="card-custom p-4">
+                <h4 class="fw-bold mb-3"><i class="bi bi-file-earmark-check text-success me-2"></i>Parsed Resume Information</h4>
+
+                {% if resume %}
+                    <div class="p-3 bg-light rounded-3 mb-3 border">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="fw-bold mb-1">{{ resume.parsed_name or candidate.full_name }}</h6>
+                                <div class="small text-muted">
+                                    <i class="bi bi-envelope me-1"></i> {{ resume.parsed_email or candidate.user.email }} &bull; 
+                                    <i class="bi bi-telephone me-1"></i> {{ resume.parsed_phone or 'N/A' }}
+                                </div>
+                            </div>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                <i class="bi bi-clock me-1"></i> Uploaded: {{ resume.uploaded_at.strftime('%b %d, %Y') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-dark"><i class="bi bi-tools me-1 text-primary"></i> Extracted Skills Taxonomy</h6>
+                        <div class="mt-2">
+                            {% for skill in candidate.candidate_skills %}
+                                <span class="badge-skill badge-skill-match">
+                                    {{ skill.skill.name }} ({{ skill.skill.category }})
+                                </span>
+                            {% else %}
+                                <span class="small text-muted">No skills extracted.</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 bg-white">
+                                <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-mortarboard me-1 text-info"></i> Education History</h6>
+                                <ul class="list-unstyled small mb-0">
+                                    {% for edu in resume.get_parsed_education() %}
+                                        <li class="mb-1">&bull; {{ edu }}</li>
+                                    {% else %}
+                                        <li class="text-muted">No education records detected.</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 bg-white">
+                                <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-briefcase me-1 text-warning"></i> Experience Metrics</h6>
+                                <div class="stat-value fs-4 text-primary">{{ resume.parsed_experience_years }} Yrs</div>
+                                <div class="small text-muted">Estimated professional experience</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if resume.get_parsed_projects() %}
+                        <div class="mb-3">
+                            <h6 class="fw-bold text-dark small"><i class="bi bi-code-square me-1 text-success"></i> Projects Mentioned</h6>
+                            <ul class="list-unstyled small text-secondary">
+                                {% for proj in resume.get_parsed_projects() %}
+                                    <li class="mb-1">&bull; {{ proj }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-file-earmark-x fs-1 text-muted"></i>
+                        <h5 class="mt-3 text-muted">No Resume Uploaded Yet</h5>
+                        <p class="small text-muted mb-0">Upload a PDF resume to view extracted skills, education, and experience details.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.pytest_cache/
+.coverage
+htmlcov/
+instance/
+database/*.db
+uploads/*.pdf
+!uploads/.gitkeep
+*.log
+.DS_Store
+.vscode/

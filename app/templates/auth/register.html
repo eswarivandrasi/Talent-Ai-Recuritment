@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - AI Recruitment System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card-custom p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle bg-primary-subtle text-primary d-inline-flex p-3 mb-2 fs-3">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <h3 class="fw-bold">Create an Account</h3>
+                    <p class="text-muted small">Select your role to get started</p>
+                </div>
+
+                <form action="{{ url_for('auth.register') }}" method="POST">
+                    <div class="mb-4 text-center">
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="role" id="roleCandidate" value="candidate" checked autocomplete="off" onchange="toggleRoleFields('candidate')">
+                            <label class="btn btn-outline-primary py-2.5 fw-semibold" for="roleCandidate">
+                                <i class="bi bi-person me-1"></i> Candidate
+                            </label>
+
+                            <input type="radio" class="btn-check" name="role" id="roleRecruiter" value="recruiter" autocomplete="off" onchange="toggleRoleFields('recruiter')">
+                            <label class="btn btn-outline-primary py-2.5 fw-semibold" for="roleRecruiter">
+                                <i class="bi bi-briefcase me-1"></i> Recruiter
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="candidateNameGroup">
+                        <label for="full_name" class="form-label fw-semibold">Full Name</label>
+                        <input type="text" class="form-control" id="full_name" name="full_name" placeholder="John Doe">
+                    </div>
+
+                    <div class="mb-3 d-none" id="recruiterCompanyGroup">
+                        <label for="company_name" class="form-label fw-semibold">Company / Organization Name</label>
+                        <input type="text" class="form-control" id="company_name" name="company_name" placeholder="Acme Tech Inc.">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-semibold">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="password" class="form-label fw-semibold">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="confirm_password" class="form-label fw-semibold">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2.5 fw-bold shadow-sm mb-3">
+                        Create Account <i class="bi bi-arrow-right me-1"></i>
+                    </button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <p class="text-muted small mb-0">
+                        Already have an account? <a href="{{ url_for('auth.login') }}" class="text-primary fw-semibold">Sign in here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleRoleFields(role) {
+    var candGroup = document.getElementById('candidateNameGroup');
+    var recGroup = document.getElementById('recruiterCompanyGroup');
+    if (role === 'recruiter') {
+        candGroup.classList.add('d-none');
+        recGroup.classList.remove('d-none');
+    } else {
+        candGroup.classList.remove('d-none');
+        recGroup.classList.add('d-none');
+    }
+}
+</script>
+{% endblock %}

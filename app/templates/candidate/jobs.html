@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Jobs - AI Recruitment System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold mb-1">Available Job Postings</h2>
+            <p class="text-muted small mb-0">Browse job openings with transparent real-time AI resume matching</p>
+        </div>
+
+        <form action="{{ url_for('candidate.jobs') }}" method="GET" class="d-flex gap-2" style="max-width: 380px; width: 100%;">
+            <input type="text" name="q" class="form-control rounded-pill px-3" placeholder="Search title or skills..." value="{{ search_query }}">
+            <button type="submit" class="btn btn-primary rounded-pill px-3"><i class="bi bi-search"></i></button>
+        </form>
+    </div>
+
+    {% if not has_resume %}
+        <div class="alert alert-warning rounded-4 shadow-sm mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Notice:</strong> Upload your PDF resume to calculate custom match scores and apply for positions! 
+            <a href="{{ url_for('candidate.resume') }}" class="alert-link ms-2">Upload Resume Now &rarr;</a>
+        </div>
+    {% endif %}
+
+    <div class="row g-4">
+        {% for item in job_card_data %}
+            {% set job = item.job %}
+            {% set match = item.match %}
+            {% set applied = item.has_applied %}
+            <div class="col-md-6">
+                <div class="card-custom p-4 h-100 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <span class="badge bg-light text-dark border me-1">{{ job.job_type }}</span>
+                            <span class="badge bg-secondary-subtle text-secondary border me-1">{{ job.department or 'Engineering' }}</span>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">{{ job.experience_years }}+ Yrs Exp</span>
+                        </div>
+                        {% if match %}
+                            <span class="score-pill {% if match.overall_match_score >= 80 %}score-pill-high{% elif match.overall_match_score >= 60 %}score-pill-medium{% else %}score-pill-low{% endif %}">
+                                {{ match.overall_match_score }}% Match
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <h4 class="fw-bold text-dark mb-1">{{ job.title }}</h4>
+                    <p class="text-muted small mb-3"><i class="bi bi-building me-1"></i> {{ job.recruiter.company_name }} &bull; {{ job.location }}</p>
+
+                    <p class="text-secondary small mb-3">
+                        {{ job.description }}
+                    </p>
+
+                    <div class="mb-3">
+                        <div class="small fw-semibold text-muted mb-1">Required Skills:</div>
+                        {% for sk in job.get_required_skills_list() %}
+                            <span class="badge-skill">{{ sk }}</span>
+                        {% endfor %}
+                    </div>
+
+                    {% if match %}
+                        <div class="p-3 bg-light rounded-3 mb-3 border">
+                            <div class="row g-2 text-center small">
+                                <div class="col-6 border-end">
+                                    <div class="text-muted">TF-IDF Similarity</div>
+                                    <div class="fw-bold text-primary">{{ match.text_similarity_score }}%</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-muted">Skill Overlap</div>
+                                    <div class="fw-bold text-success">{{ match.skill_match_score }}%</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-2 pt-2 border-top">
+                                <div class="small fw-semibold text-success mb-1">Matching Skills:</div>
+                                {% for m_sk in match.matching_skills %}
+                                    <span class="badge-skill badge-skill-match">✓ {{ m_sk }}</span>
+                                {% else %}
+                                    <span class="small text-muted">None</span>
+                                {% endfor %}
+
+                                <div class="small fw-semibold text-danger mt-2 mb-1">Missing Skills:</div>
+                                {% for mis_sk in match.missing_skills %}
+                                    <span class="badge-skill badge-skill-missing">✗ {{ mis_sk }}</span>
+                                {% else %}
+                                    <span class="small text-muted">None</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-auto pt-2">
+                        {% if applied %}
+                            <button class="btn btn-secondary w-100 rounded-pill fw-semibold" disabled>
+                                <i class="bi bi-check-circle me-1"></i> Applied
+                            </button>
+                        {% else %}
+                            <form action="{{ url_for('candidate.apply_job', job_id=job.id) }}" method="POST">
+                                <button type="submit" class="btn btn-primary w-100 rounded-pill fw-semibold" {% if not has_resume %}disabled{% endif %}>
+                                    Apply Now <i class="bi bi-send ms-1"></i>
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <p class="text-muted">No jobs matching your query were found.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

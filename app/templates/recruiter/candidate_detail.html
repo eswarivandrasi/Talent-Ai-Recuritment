@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Candidate Evaluation - {{ candidate.full_name }}{% endblock %}
+
+{% block content %}
+{% set job_weights = application.job.get_weights() %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-1">{{ candidate.full_name }}</h2>
+            <p class="text-muted small mb-0">Applying for: {{ application.job.title }} &bull; Status: <span class="badge bg-secondary">{{ application.status }}</span></p>
+        </div>
+        <div class="d-flex gap-2">
+            <form action="{{ url_for('recruiter.update_status', application_id=application.id) }}" method="POST" class="d-inline">
+                <input type="hidden" name="status" value="Shortlisted">
+                <button type="submit" class="btn btn-success rounded-pill px-4" {% if application.status == 'Shortlisted' %}disabled{% endif %}>
+                    <i class="bi bi-check-circle me-1"></i> Shortlist Candidate
+                </button>
+            </form>
+            <form action="{{ url_for('recruiter.update_status', application_id=application.id) }}" method="POST" class="d-inline">
+                <input type="hidden" name="status" value="Rejected">
+                <button type="submit" class="btn btn-outline-danger rounded-pill px-4" {% if application.status == 'Rejected' %}disabled{% endif %}>
+                    <i class="bi bi-x-circle me-1"></i> Reject
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Composite Score Card -->
+    <div class="card-custom p-4 mb-4 bg-dark text-white">
+        <div class="row align-items-center gy-3">
+            <div class="col-md-3 text-center border-end border-secondary">
+                <div class="small text-uppercase opacity-75 fw-semibold mb-1">Composite Final Score</div>
+                <div class="display-4 fw-bold text-warning">{{ application.final_score }}%</div>
+                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-1 mt-1">Configured Weights</span>
+            </div>
+            <div class="col-md-9 ps-md-4">
+                <h5 class="fw-bold mb-3 text-info"><i class="bi bi-sliders me-2"></i>Score Formula Contribution</h5>
+                <div class="row g-3 text-center">
+                    <div class="col-6 col-sm-3">
+                        <div class="p-2 bg-secondary-subtle bg-opacity-10 rounded border border-secondary">
+                            <div class="small opacity-75">Resume Match</div>
+                            <div class="fs-5 fw-bold text-primary">{{ score.resume_match_score if score else application.match_score }}%</div>
+                            <div class="small text-muted" style="font-size: 0.75rem;">Weight: {{ (job_weights.get('resume_match', 0.40) * 100)|round(1) }}%</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="p-2 bg-secondary-subtle bg-opacity-10 rounded border border-secondary">
+                            <div class="small opacity-75">Interview Score</div>
+                            <div class="fs-5 fw-bold text-success">{{ score.interview_score if score else application.interview_score }}%</div>
+                            <div class="small text-muted" style="font-size: 0.75rem;">Weight: {{ (job_weights.get('interview', 0.35) * 100)|round(1) }}%</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="p-2 bg-secondary-subtle bg-opacity-10 rounded border border-secondary">
+                            <div class="small opacity-75">Skill Overlap</div>
+                            <div class="fs-5 fw-bold text-info">{{ score.skill_match_score if score else 0 }}%</div>
+                            <div class="small text-muted" style="font-size: 0.75rem;">Weight: {{ (job_weights.get('skill_match', 0.15) * 100)|round(1) }}%</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="p-2 bg-secondary-subtle bg-opacity-10 rounded border border-secondary">
+                            <div class="small opacity-75">Experience</div>
+                            <div class="fs-5 fw-bold text-warning">{{ score.experience_score if score else 100 }}%</div>
+                            <div class="small text-muted" style="font-size: 0.75rem;">Weight: {{ (job_weights.get('experience', 0.10) * 100)|round(1) }}%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Candidate Profile & Skills -->
+        <div class="col-lg-6">
+            <div class="card-custom p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-person-badge text-primary me-2"></i>Candidate Profile</h5>
+                <p class="mb-1"><strong>Email:</strong> {{ candidate.user.email }}</p>
+                <p class="mb-1"><strong>Phone:</strong> {{ candidate.phone or 'N/A' }}</p>
+                <p class="mb-1"><strong>Headline:</strong> {{ candidate.headline or 'Candidate' }}</p>
+                <p class="mb-3"><strong>Location:</strong> {{ candidate.location or 'N/A' }}</p>
+
+                <h6 class="fw-bold text-dark mt-4 mb-2">Extracted Resume Skills:</h6>
+                <div class="mb-3">
+                    {% for cs in candidate.candidate_skills %}
+                        <span class="badge-skill badge-skill-match me-1 mb-1">{{ cs.skill.name }}</span>
+                    {% else %}
+                        <span class="small text-muted">No skills extracted.</span>
+                    {% endfor %}
+                </div>
+
+                {% if recommendation %}
+                    <h6 class="fw-bold text-danger mt-3 mb-2">Identified Skill Gaps:</h6>
+                    <div>
+                        {% for sk in recommendation.get_missing_skills() %}
+                            <span class="badge-skill badge-skill-missing me-1 mb-1">✗ {{ sk }}</span>
+                        {% else %}
+                            <span class="small text-success fw-semibold">No skill gaps! Perfect fit.</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Raw Resume Text Inspector -->
+        <div class="col-lg-6">
+            <div class="card-custom p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-file-earmark-text text-secondary me-2"></i>Extracted Resume Text</h5>
+                {% if resume and resume.raw_text %}
+                    <div class="p-3 bg-light rounded border text-secondary small overflow-auto" style="max-height: 380px; font-family: monospace; white-space: pre-wrap;">{{ resume.raw_text }}</div>
+                {% else %}
+                    <p class="text-muted small">No resume text available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

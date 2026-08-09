@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Recruiter SaaS Dashboard - AI Recruitment System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Recruiter Dashboard</h2>
+            <p class="text-muted small mb-0">Company: {{ recruiter.company_name }} &bull; AI Hiring Insights & Candidate Rankings</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('recruiter.create_job') }}" class="btn btn-primary rounded-pill px-4 fw-semibold">
+                <i class="bi bi-plus-circle me-1"></i> Post New Job
+            </a>
+            <a href="{{ url_for('recruiter.analytics') }}" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="bi bi-graph-up me-1"></i> Analytics
+            </a>
+        </div>
+    </div>
+
+    <!-- Stat Metrics Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Active Jobs</div>
+                        <div class="stat-value mt-1">{{ total_jobs }}</div>
+                    </div>
+                    <div class="rounded-circle bg-primary-subtle text-primary p-3">
+                        <i class="bi bi-briefcase fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Total Applicants</div>
+                        <div class="stat-value mt-1">{{ total_applications }}</div>
+                    </div>
+                    <div class="rounded-circle bg-info-subtle text-info p-3">
+                        <i class="bi bi-people fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Avg Resume Match</div>
+                        <div class="stat-value mt-1">{{ avg_match_score }}%</div>
+                    </div>
+                    <div class="rounded-circle bg-success-subtle text-success p-3">
+                        <i class="bi bi-pie-chart fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Shortlisted</div>
+                        <div class="stat-value mt-1 text-success">{{ shortlisted_count }}</div>
+                    </div>
+                    <div class="rounded-circle bg-success-subtle text-success p-3">
+                        <i class="bi bi-check-circle fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Candidates & Recent Applicants Row -->
+    <div class="row g-4">
+        <!-- Top Ranked Candidates Table -->
+        <div class="col-lg-8">
+            <div class="card-custom p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-trophy text-warning me-2"></i>Top Ranked Candidates</h5>
+                    <a href="{{ url_for('recruiter.applicants') }}" class="btn btn-sm btn-outline-primary rounded-pill">View All</a>
+                </div>
+
+                {% if top_candidates %}
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Candidate Name</th>
+                                    <th>Job Title</th>
+                                    <th>Match %</th>
+                                    <th>Interview %</th>
+                                    <th>Final Score</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for app in top_candidates %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge rounded-circle bg-primary text-white p-2" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;">
+                                                {{ loop.index }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold text-dark">{{ app.candidate.full_name }}</div>
+                                            <div class="small text-muted">{{ app.candidate.user.email }}</div>
+                                        </td>
+                                        <td><span class="small text-secondary">{{ app.job.title }}</span></td>
+                                        <td><span class="fw-bold text-primary small">{{ app.match_score }}%</span></td>
+                                        <td><span class="fw-bold text-success small">{{ app.interview_score }}%</span></td>
+                                        <td>
+                                            <span class="score-pill {% if app.final_score >= 80 %}score-pill-high{% elif app.final_score >= 60 %}score-pill-medium{% else %}score-pill-low{% endif %}">
+                                                {{ app.final_score }}%
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('recruiter.candidate_detail', application_id=app.id) }}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                                                Inspect
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-2"></i>
+                        <p class="mt-2 mb-0">No applicant scores generated yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Activity Sidebar -->
+        <div class="col-lg-4">
+            <div class="card-custom p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-clock-history me-2"></i>Recent Applicants</h5>
+                {% if recent_applications %}
+                    <div class="list-group list-group-flush">
+                        {% for app in recent_applications %}
+                            <div class="list-group-item px-0 py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-semibold small">{{ app.candidate.full_name }}</div>
+                                        <div class="small text-muted">{{ app.job.title }}</div>
+                                    </div>
+                                    <span class="badge bg-light text-dark border small">{{ app.status }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="small text-muted mb-0">No recent applications.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

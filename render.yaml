@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: talentai-recruitment
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      # Set DATABASE_URL to your managed PostgreSQL connection string
+      # for persistent production data.

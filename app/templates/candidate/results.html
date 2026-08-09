@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Interview Evaluation Results - AI Recruitment System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-1">AI Interview Evaluation Results</h2>
+            <p class="text-muted small mb-0">Job Position: {{ application.job.title }} &bull; {{ application.job.recruiter.company_name }}</p>
+        </div>
+        <a href="{{ url_for('candidate.applications') }}" class="btn btn-outline-secondary rounded-pill btn-sm px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to Applications
+        </a>
+    </div>
+
+    <!-- Summary Score Card -->
+    <div class="card-custom p-4 mb-4 bg-dark text-white">
+        <div class="row align-items-center gy-3">
+            <div class="col-md-3 text-center border-end border-secondary">
+                <div class="small text-uppercase opacity-75 fw-semibold mb-1">Overall Interview Score</div>
+                <div class="display-4 fw-bold text-success">{{ interview.total_score }}%</div>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1">Evaluated by NLP</span>
+            </div>
+            <div class="col-md-9 ps-md-4">
+                <h5 class="fw-bold mb-2 text-info"><i class="bi bi-journal-check me-2"></i>Performance Breakdown</h5>
+                <div class="row g-3 text-white-50 small">
+                    <div class="col-sm-4">
+                        <div class="fw-semibold text-white">Resume Match Score:</div>
+                        <div class="fs-5 text-primary fw-bold">{{ application.match_score }}%</div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="fw-semibold text-white">Interview Technical Score:</div>
+                        <div class="fs-5 text-success fw-bold">{{ interview.total_score }}%</div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="fw-semibold text-white">Composite Final Score:</div>
+                        <div class="fs-5 text-warning fw-bold">{{ application.final_score }}%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Per-Question Answers Breakdown -->
+    <div class="card-custom p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-question-circle text-primary me-2"></i>Question Evaluation Breakdown</h5>
+
+        {% for question in interview.questions %}
+            {% set ans = question.answer %}
+            {% set fb = ans.get_feedback() if ans else {} %}
+            <div class="p-3 border rounded-3 mb-3 bg-light">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="fw-bold text-dark mb-0">Q{{ loop.index }}: {{ question.question_text }}</h6>
+                    <span class="badge bg-primary px-3 py-1 fw-bold">Score: {{ ans.score if ans else 0 }}%</span>
+                </div>
+
+                <div class="p-2 bg-white rounded border text-secondary small mb-2">
+                    <strong>Your Response:</strong> {{ ans.answer_text if ans and ans.answer_text else 'No response provided.' }}
+                </div>
+
+                {% if fb %}
+                    <div class="small">
+                        <span class="fw-semibold text-muted me-2">Relevance: {{ fb.get('relevance', 'N/A') }}</span>
+                        {% if fb.get('matched_keywords') %}
+                            <span class="text-success me-2">✓ Keywords: {{ fb.matched_keywords|join(', ') }}</span>
+                        {% endif %}
+                        {% if fb.get('missing_keywords') %}
+                            <span class="text-danger">✗ Missed: {{ fb.missing_keywords|join(', ') }}</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="alert alert-dark border-secondary p-3 text-center small">
+        <i class="bi bi-info-circle text-warning me-1"></i>
+        <strong>Responsible AI Notice:</strong> AI-generated scores are decision-support recommendations and should not replace human evaluation.
+    </div>
+</div>
+{% endblock %}

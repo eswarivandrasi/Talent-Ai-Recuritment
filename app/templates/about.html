@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}About System - AI-Powered Intelligent Recruitment System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row gy-5">
+        <div class="col-lg-8 mx-auto">
+            <span class="badge bg-primary-subtle text-primary border border-primary px-3 py-2 rounded-pill fw-semibold mb-3">
+                <i class="bi bi-cpu-fill me-1"></i> Technical Documentation & Methodology
+            </span>
+            <h1 class="fw-bold mb-4">AI-Powered Intelligent Interview & Recruitment System</h1>
+
+            <div class="card-custom p-4 mb-4">
+                <h5 class="fw-bold text-primary mb-3"><i class="bi bi-lightbulb me-2"></i>Project Overview</h5>
+                <p class="text-secondary">
+                    This project is a full-stack production-style AI/ML web application designed to optimize corporate hiring pipelines. It replaces manual resume screening and preliminary interviews with transparent, automated Natural Language Processing (NLP) scoring engines.
+                </p>
+            </div>
+
+            <div class="card-custom p-4 mb-4">
+                <h5 class="fw-bold text-primary mb-3"><i class="bi bi-calculator me-2"></i>Core AI & NLP Algorithms</h5>
+                
+                <h6 class="fw-bold text-dark mt-3">1. Resume PDF Text Extraction & Skill Parsing</h6>
+                <p class="text-muted small">
+                    Processes uploaded PDF resumes using <code>pypdf</code> and <code>pdfplumber</code>. Contact information, education credentials, and years of experience are extracted using regex boundaries. Technical skills are mapped against a centralized database of 150+ standardized technical skills.
+                </p>
+
+                <h6 class="fw-bold text-dark mt-4">2. TF-IDF & Cosine Similarity Job Matching</h6>
+                <p class="text-muted small">
+                    Resume text and Job Descriptions are converted into term frequency-inverse document frequency (TF-IDF) sparse vector representations. The text similarity is computed using the vector cosine angle:
+                </p>
+                <div class="p-3 bg-light rounded-3 text-center my-3 fw-mono text-dark" style="font-family: monospace;">
+                    \[ \text{Cosine Similarity}(A, B) = \frac{\mathbf{A} \cdot \mathbf{B}}{\|\mathbf{A}\| \|\mathbf{B}\|} = \frac{\sum_{i=1}^{n} A_i B_i}{\sqrt{\sum_{i=1}^{n} A_i^2} \sqrt{\sum_{i=1}^{n} B_i^2}} \]
+                </div>
+                <p class="text-muted small">
+                    Skill match ratio is calculated as \( \frac{|S_{\text{resume}} \cap S_{\text{job}}|}{|S_{\text{job}}|} \). Unified match score combines text cosine similarity and skill overlap ratio.
+                </p>
+
+                <h6 class="fw-bold text-dark mt-4">3. Multi-Criteria Candidate Ranking</h6>
+                <p class="text-muted small">
+                    Recruiters can configure dynamic weighting parameters. The composite candidate final score is calculated from stored empirical data:
+                </p>
+                <div class="p-3 bg-light rounded-3 text-center my-3 fw-mono text-dark" style="font-family: monospace;">
+                    \[ \text{Final Score} = (w_1 \times S_{\text{resume}}) + (w_2 \times S_{\text{interview}}) + (w_3 \times S_{\text{skill}}) + (w_4 \times S_{\text{experience}}) \]
+                </div>
+                <p class="text-muted small mb-0">
+                    Default weights: Resume Match (40%), Technical Interview (35%), Skill Match (15%), Experience/Education (10%).
+                </p>
+            </div>
+
+            <div class="card-custom p-4 mb-4 border-warning">
+                <h5 class="fw-bold text-warning mb-3"><i class="bi bi-shield-lock me-2"></i>Responsible AI Framework</h5>
+                <ul class="text-secondary small mb-0 ps-3">
+                    <li class="mb-2"><strong>Zero Protected Characteristics:</strong> The system does NOT extract, store, or evaluate gender, race, age, religion, political views, or health data.</li>
+                    <li class="mb-2"><strong>No Facial Emotion Recognition:</strong> Hiring recommendations are based solely on text relevance, technical skill matching, and answer evaluation.</li>
+                    <li class="mb-0"><strong>Decision-Support Guarantee:</strong> AI-generated scores are transparent recommendations intended to assist human recruiters, not replace human judgment.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

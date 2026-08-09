@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Recruitment Analytics & Insights - AI Recruitment System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-1">Recruitment Analytics & Insights</h2>
+            <p class="text-muted small mb-0">Visual data analytics across applications, candidate score distributions, and hiring statuses</p>
+        </div>
+        <a href="{{ url_for('recruiter.dashboard') }}" class="btn btn-outline-secondary rounded-pill btn-sm px-3">
+            <i class="bi bi-arrow-left me-1"></i> Return to Dashboard
+        </a>
+    </div>
+
+    <!-- Charts Grid Row -->
+    <div class="row g-4 mb-4">
+        <!-- Applications per Job Bar Chart -->
+        <div class="col-lg-6">
+            <div class="card-custom p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-line text-primary me-2"></i>Applications Received Per Job</h5>
+                <div style="height: 280px; position: relative;">
+                    <canvas id="chartAppsPerJob"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Candidate Score Distribution Histogram -->
+        <div class="col-lg-6">
+            <div class="card-custom p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-graph-up-arrow text-info me-2"></i>Candidate Final Score Distribution</h5>
+                <div style="height: 280px; position: relative;">
+                    <canvas id="chartScoreDistribution"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Status Breakdown Doughnut Chart -->
+        <div class="col-lg-6">
+            <div class="card-custom p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-pie-chart text-success me-2"></i>Application Status Breakdown</h5>
+                <div style="height: 260px; position: relative;">
+                    <canvas id="chartStatusBreakdown"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Metrics Card -->
+        <div class="col-lg-6">
+            <div class="card-custom p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Recruitment Metrics Summary</h5>
+                <div class="p-3 bg-light rounded-3 mb-3 border">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold">Total Job Openings Created:</span>
+                        <span class="fw-bold fs-5 text-primary">{{ jobs|length }}</span>
+                    </div>
+                </div>
+                <div class="p-3 bg-light rounded-3 mb-3 border">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold">Total Applications Processed:</span>
+                        <span class="fw-bold fs-5 text-info">{{ total_applications }}</span>
+                    </div>
+                </div>
+                <div class="p-3 bg-light rounded-3 border">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold">AI Evaluation Pipeline:</span>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1">Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var jobTitles = {{ job_titles_json | safe }};
+    var appsPerJob = {{ apps_per_job_json | safe }};
+    var scoreBins = {{ score_bins_json | safe }};
+    var statusCounts = {{ status_counts_json | safe }};
+
+    initRecruiterCharts(jobTitles, appsPerJob, scoreBins, statusCounts);
+});
+</script>
+{% endblock %}

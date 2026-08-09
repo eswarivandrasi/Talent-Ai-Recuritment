@@ -1,0 +1,45 @@
+AI-POWERED INTELLIGENT INTERVIEW & RECRUITMENT SYSTEM
+=======================================================
+
+WINDOWS QUICK START
+--------------------
+
+1. Open this folder in VS Code / Antigravity.
+
+2. Open a terminal and run:
+
+   py -3.11 -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   python -m pip install --upgrade pip
+   pip install -r requirements.txt
+
+3. Create demo database:
+
+   python seed.py
+
+4. Start:
+
+   python app.py
+
+5. Open:
+
+   http://127.0.0.1:5000
+
+DEMO RECRUITER
+--------------
+Email: recruiter@example.com
+Password: password123
+
+DEMO CANDIDATES
+---------------
+candidate1@example.com / password123
+candidate2@example.com / password123
+candidate3@example.com / password123
+candidate4@example.com / password123
+
+IMPORTANT
+---------
+- seed.py resets the development database. Do not run it against production data.
+- For production, set SECRET_KEY and DATABASE_URL.
+- Health check: /health
+- The AI scoring system is decision support and must be reviewed by a human recruiter.

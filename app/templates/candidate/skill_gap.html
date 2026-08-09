@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Skill Gap Analysis - {{ application.job.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-1">AI Skill Gap Analysis</h2>
+            <p class="text-muted small mb-0">Target Job Position: {{ application.job.title }}</p>
+        </div>
+        <a href="{{ url_for('candidate.applications') }}" class="btn btn-outline-secondary rounded-pill btn-sm px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to Applications
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Strong Skills -->
+        <div class="col-md-6">
+            <div class="card-custom p-4 h-100 border-success">
+                <h5 class="fw-bold text-success mb-3">
+                    <i class="bi bi-check-circle-fill me-2"></i>Candidate Strengths
+                </h5>
+                <p class="text-muted small">Skills from your resume matching the job requirements:</p>
+                
+                {% if recommendation and recommendation.get_strong_skills() %}
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        {% for sk in recommendation.get_strong_skills() %}
+                            <span class="badge-skill badge-skill-match px-3 py-2 fs-6">
+                                ✓ {{ sk }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="small text-muted mb-0">No direct skill matches detected.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Missing Skill Gaps -->
+        <div class="col-md-6">
+            <div class="card-custom p-4 h-100 border-danger">
+                <h5 class="fw-bold text-danger mb-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Skill Gaps Identified
+                </h5>
+                <p class="text-muted small">Required job skills not found in your extracted resume:</p>
+
+                {% if recommendation and recommendation.get_missing_skills() %}
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        {% for mis_sk in recommendation.get_missing_skills() %}
+                            <span class="badge-skill badge-skill-missing px-3 py-2 fs-6">
+                                ✗ {{ mis_sk }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="small text-success fw-bold mb-0">No missing skills! You meet all core technical requirements.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Learning Recommendations Curriculum -->
+    <div class="card-custom p-4 mt-4">
+        <h5 class="fw-bold text-primary mb-3">
+            <i class="bi bi-mortarboard-fill me-2"></i>Recommended Learning Roadmap
+        </h5>
+        
+        {% if recommendation and recommendation.get_learning_recommendations() %}
+            <div class="list-group list-group-flush">
+                {% for rec in recommendation.get_learning_recommendations() %}
+                    <div class="list-group-item px-0 py-3">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="rounded-circle bg-primary-subtle text-primary p-2 fw-bold text-center" style="width: 38px; height: 38px;">
+                                {{ loop.index }}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1">{{ rec }}</h6>
+                                <p class="small text-muted mb-0">Practice hands-on code examples and build a mini-project to add to your resume portfolio.</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted small mb-0">No specific learning recommendations required.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
